@@ -182,3 +182,37 @@ async def get_job(job_id: str) -> dict[str, Any]:
 async def list_jobs() -> list[str]:
     """List all tracked job IDs."""
     return list(jobs.keys())
+
+
+@app.get("/metrics")
+async def get_metrics():
+    """Expose Prometheus telemetry and Service Level Indicators (SLIs)."""
+    from fastapi.responses import PlainTextResponse
+
+    completed = sum(
+        1
+        for j in jobs.values()
+        if getattr(j, "status", None) == "completed"
+        or (isinstance(j, dict) and j.get("status") == "completed")
+    )
+    failed = sum(
+        1
+        for j in jobs.values()
+        if getattr(j, "status", None) == "failed"
+        or (isinstance(j, dict) and j.get("status") == "failed")
+    )
+
+    metrics_text = (
+        "# HELP ethos_active_agents Total number of registered DSP agents\n"
+        "# TYPE ethos_active_agents gauge\n"
+        f"ethos_active_agents {len(orchestrator.agents)}\n"
+        "# HELP ethos_jobs_total Total audio processing jobs by status\n"
+        "# TYPE ethos_jobs_total counter\n"
+        f'ethos_jobs_total{{status="completed"}} {completed}\n'
+        f'ethos_jobs_total{{status="failed"}} {failed}\n'
+        f'ethos_jobs_total{{status="total"}} {len(jobs)}\n'
+        "# HELP ethos_pipeline_stages Total DSP pipeline stages\n"
+        "# TYPE ethos_pipeline_stages gauge\n"
+        "ethos_pipeline_stages 4\n"
+    )
+    return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")

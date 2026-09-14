@@ -42,6 +42,12 @@ jobs:
       - name: Bandit Security Audit
         run: uv run bandit -r src/ethos -lll
 
+      - name: pip-audit Dependency Vulnerability Scan
+        run: |
+          uv pip install pip-audit --system || uv run pip install pip-audit
+          uv run pip-audit --strict --desc || true
+        continue-on-error: true
+
   test:
     name: Test Matrix (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     needs: lint-and-typecheck
@@ -79,8 +85,12 @@ jobs:
       - name: Install Dependencies
         run: uv sync --extra dev
 
-      - name: Run Test Suite with Coverage
-        run: uv run pytest --cov=src/ethos --cov-report=xml --cov-report=term-missing tests/
+      - name: Run Unit & Integration Tests with Coverage
+        run: uv run pytest --cov=src/ethos --cov-report=xml --cov-report=term-missing tests/unit tests/integration
+
+      - name: Run Shadow (Golden Dataset) Tests
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        run: uv run pytest tests/shadow -v
 
       - name: Upload Coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'

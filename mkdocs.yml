@@ -1,0 +1,81 @@
+site_name: ETHOS Core Documentation
+site_description: Autonomous Audio Intelligence & Multi-Agent DSP Mastering Platform
+site_url: https://sgm-audio.github.io/ethos-core
+repo_url: https://github.com/sgm-audio/ethos-core
+repo_name: sgm-audio/ethos-core
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - content.code.copy
+    - content.tabs.link
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - toc.follow
+    - search.highlight
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_mermaid
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: tutorials/installation.md
+    - Quickstart: tutorials/quickstart.md
+  - How-To Guides:
+    - Process Audio Files: how-to/process-audio.md
+    - Deploy with Docker: how-to/deploy-docker.md
+    - Configure RL Agents: how-to/configure-rl-agents.md
+  - Reference:
+    - API Reference: reference/api.md
+    - CLI Reference: reference/cli.md
+    - Configuration: reference/configuration.md
+    - Agent Catalog: reference/agents.md
+  - Architecture:
+    - System Architecture: explanation/architecture.md
+    - DSP Pipeline: explanation/dsp-pipeline.md
+    - RL Multi-Agent System: explanation/rl-system.md
+    - Drift Detection & Safe Mode: explanation/drift-detection.md
+
+plugins:
+  - search

@@ -5,13 +5,24 @@ High-throughput event-driven pub/sub communication for multi-agent audio workflo
 
 import asyncio
 import logging
+import secrets
 from collections.abc import Callable
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+def generate_trace_id() -> str:
+    """Generate a standard 128-bit W3C hex trace ID."""
+    return secrets.token_hex(16)
+
+
+def generate_span_id() -> str:
+    """Generate a standard 64-bit W3C hex span ID."""
+    return secrets.token_hex(8)
 
 
 class MessagePriority(Enum):
@@ -29,6 +40,17 @@ class Message:
     timestamp: datetime
     priority: MessagePriority = MessagePriority.NORMAL
     correlation_id: str | None = None
+    trace_id: str | None = None
+    span_id: str | None = None
+    trace_context: dict[str, str] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if not self.trace_id:
+            self.trace_id = generate_trace_id()
+        if not self.span_id:
+            self.span_id = generate_span_id()
+        if "traceparent" not in self.trace_context:
+            self.trace_context["traceparent"] = f"00-{self.trace_id}-{self.span_id}-01"
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -70,8 +92,11 @@ class MessageBus:
         sender: str,
         priority: MessagePriority = MessagePriority.NORMAL,
         correlation_id: str | None = None,
-    ) -> None:
-        """Publish a message to a topic."""
+        trace_id: str | None = None,
+        span_id: str | None = None,
+        trace_context: dict[str, str] | None = None,
+    ) -> Message:
+        """Publish a message to a topic with distributed trace context."""
         message = Message(
             topic=topic,
             payload=payload,
@@ -79,6 +104,9 @@ class MessageBus:
             timestamp=datetime.now(),
             priority=priority,
             correlation_id=correlation_id,
+            trace_id=trace_id,
+            span_id=span_id,
+            trace_context=trace_context or {},
         )
 
         self.message_history.append(message)
@@ -86,7 +114,8 @@ class MessageBus:
             self.message_history.pop(0)
 
         await self._message_queue.put(message)
-        logger.debug("Published %s from %s", topic, sender)
+        logger.debug("Published %s from %s [trace=%s]", topic, sender, message.trace_id)
+        return message
 
     async def start(self) -> None:
         """Start background message delivery loop."""

@@ -49,6 +49,29 @@ class DAWGeneratorAgent:
         with open(output_path, "w") as f:
             f.write(rpp_content)
 
+        # Export user-facing visual DSP curves
+        try:
+            from ethos.core.visualization import (
+                generate_dynamics_curve_svg,
+                generate_eq_curve_svg,
+                save_svg_to_file,
+            )
+
+            # Generate EQ curve for project
+            default_bands = [
+                {"freq": 80.0, "gain": 1.5, "q": 0.8},
+                {"freq": 320.0, "gain": -1.2, "q": 1.2},
+                {"freq": 3500.0, "gain": 2.0, "q": 0.9},
+                {"freq": 10500.0, "gain": 1.8, "q": 0.7},
+            ]
+            eq_svg = generate_eq_curve_svg(default_bands)
+            save_svg_to_file(eq_svg, output_path.replace(".RPP", "_eq_curve.svg"))
+
+            dyn_svg = generate_dynamics_curve_svg(threshold_db=-16.0, ratio=3.0, makeup_db=1.5)
+            save_svg_to_file(dyn_svg, output_path.replace(".RPP", "_dynamics_curve.svg"))
+        except Exception as e:
+            logger.warning("Could not generate visual curves: %s", e)
+
         # Create DAWProject object
         daw_project = DAWProject(
             daw_type="reaper",

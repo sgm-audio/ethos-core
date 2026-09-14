@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    name: Build Wheel & Create Release
+    name: Build, Sign & Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,13 +27,27 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Install Dependencies
+        run: uv sync --extra dev
+
+      - name: Run Full Test Suite
+        run: uv run pytest tests/unit tests/integration tests/shadow -v
+
       - name: Build Distribution Packages
         run: uv build
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          uv run python scripts/export_assets.py
+        continue-on-error: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: |
+            dist/*
+            dist/sbom.json
+            dist/openapi.json
           generate_release_notes: true
           draft: false
           prerelease: false

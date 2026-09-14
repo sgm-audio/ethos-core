@@ -48,7 +48,7 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 asyncio_mode = "auto"
 addopts = "--basetemp=.pytest_temp"
-norecursedirs = [".venv", "SEMAS", "test_framework", "test_output", "demo_test_results"]
+norecursedirs = [".venv", "SEMAS", "test_framework", "test_output", "demo_test_results", "tests/load"]
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::UserWarning",

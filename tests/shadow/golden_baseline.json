@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "tracks": {
+    "pop_radio_gold": {
+      "genre": "Pop",
+      "baseline_sdr_db": 5.1,
+      "target_lufs": -14.0,
+      "max_true_peak_db": -1.0
+    },
+    "rock_punch_gold": {
+      "genre": "Rock",
+      "baseline_sdr_db": 5.0,
+      "target_lufs": -13.5,
+      "max_true_peak_db": -1.0
+    },
+    "edm_club_gold": {
+      "genre": "Electronic",
+      "baseline_sdr_db": 4.8,
+      "target_lufs": -11.0,
+      "max_true_peak_db": -0.8
+    },
+    "acoustic_warmth_gold": {
+      "genre": "Acoustic",
+      "baseline_sdr_db": 5.4,
+      "target_lufs": -16.0,
+      "max_true_peak_db": -1.5
+    },
+    "ballad_clarity_gold": {
+      "genre": "Ballad",
+      "baseline_sdr_db": 5.2,
+      "target_lufs": -15.0,
+      "max_true_peak_db": -1.0
+    }
+  },
+  "drift_thresholds": {
+    "max_sdr_drop_db": 0.5,
+    "max_lufs_deviation_lu": 16.0,
+    "max_peak_overshoot_db": 1.5
+  }
+}

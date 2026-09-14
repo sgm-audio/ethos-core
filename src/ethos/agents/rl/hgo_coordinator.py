@@ -15,6 +15,7 @@ from typing import Any
 
 import ray
 
+from ethos.agents.rl.drift_detector import ConceptDriftDetector
 from ethos.core.audio_ontology import (
     AgentAction,
     AudioAttribute,
@@ -111,6 +112,7 @@ class HGOCoordinator:
 
         # Agent registry
         self.registered_agents = {}
+        self.drift_detector = ConceptDriftDetector()
 
         logger.info("HGO Coordinator initialized")
 
@@ -213,18 +215,43 @@ class HGOCoordinator:
         proposals: list[AgentProposal],
         conflicts: list[ConflictReport],
         current_state: AudioState,
+        critic_confidence: float = 0.85,
     ) -> CoordinationDecision:
         """
         Resolve conflicts and make coordination decision.
-
-        Args:
-            proposals: All agent proposals
-            conflicts: Detected conflicts
-            current_state: Current state
-
-        Returns:
-            CoordinationDecision
+        Checks for RL Concept Drift and activates Safe Mode if confidence is low
+        or extreme parameters are proposed.
         """
+        # Concept drift & safety gate
+        drift_report = self.drift_detector.check_rl_concept_drift(
+            critic_confidence=critic_confidence,
+            proposals=proposals,
+            current_state=current_state,
+        )
+        if drift_report.safe_mode_activated:
+            safe_proposals = []
+            for p in proposals:
+                safe_action = self.drift_detector.get_safe_fallback_action(p.agent_id)
+                safe_proposals.append(
+                    AgentProposal(
+                        agent_id=p.agent_id,
+                        action=safe_action,
+                        predicted_impact=safe_action.expected_impact,
+                        predicted_satisfaction=0.8,
+                        confidence=1.0,
+                    )
+                )
+            return CoordinationDecision(
+                approved_proposals=safe_proposals,
+                rejected_proposals=[],
+                execution_order=[p.agent_id for p in safe_proposals],
+                compromise_adjustments={},
+                reasoning=(
+                    f"SAFE MODE ENGAGED: {drift_report.reason}. "
+                    "Replaced out-of-distribution neural proposals with deterministic DSP heuristics."
+                ),
+            )
+
         if not conflicts:
             # No conflicts, approve all proposals
             return CoordinationDecision(
