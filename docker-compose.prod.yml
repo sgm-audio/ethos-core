@@ -1,0 +1,26 @@
+version: '3.9'
+
+# Production compose - minimal setup
+services:
+  ethos-core:
+    image: ethos-core:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    restart: on-failure:5
+    networks:
+      - ethos-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+networks:
+  ethos-network:
+    driver: bridge

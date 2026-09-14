@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ethos-core-config
+  labels:
+    app.kubernetes.io/name: ethos-core
+    app.kubernetes.io/component: api
+data:
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  PORT: "8000"
+  MAX_WORKERS: "4"
+  AUDIO_SAMPLE_RATE: "44100"
+  DEFAULT_ENHANCEMENT_PROFILE: "balanced"

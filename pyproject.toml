@@ -1,0 +1,89 @@
+[project]
+name = "ethos-core"
+version = "0.1.0"
+description = "ETHOS Unified Audio Intelligence Platform"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "ray>=2.9.0",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "librosa>=0.10.1",
+    "soundfile>=0.12.1",
+    "numpy>=1.26.0,<2.0.0",
+    "scipy>=1.11.0",
+    "pydantic>=2.6.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.26.0",
+    "loguru>=0.7.2",
+    "psutil>=5.9.0",
+    "python-multipart>=0.0.9",
+    "mido>=1.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.3.0",
+    "mypy>=1.8.0",
+    "bandit>=1.7.0",
+]
+
+[project.scripts]
+ethos = "ethos.interfaces.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ethos"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+addopts = "--basetemp=.pytest_temp"
+norecursedirs = [".venv", "SEMAS", "test_framework", "test_output", "demo_test_results"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+]
+ignore = [
+    "E501",  # line length (handled by ruff format)
+    "B008",  # function call in argument defaults (needed for fastapi Depends)
+    "SIM108", # ternary operator preference
+    "B904",  # raise from within except
+    "B905",  # zip without strict
+    "UP042", # StrEnum recommendation (preserves python 3.10 enum compat)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ethos"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true

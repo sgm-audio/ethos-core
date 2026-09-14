@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  ethos-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ethos-core-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - LOG_LEVEL=DEBUG
+    volumes:
+      # Mount source code for hot-reload during development
+      - ./src:/app/src
+      - ./tests:/app/tests
+      # Exclude virtual environment from being overwritten
+      - /app/.venv
+    networks:
+      - ethos-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  # Optional: Redis for caching/messaging
+  redis:
+    image: redis:7-alpine
+    container_name: ethos-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ethos-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  # Optional: PostgreSQL for metadata/results storage
+  postgres:
+    image: postgres:16-alpine
+    container_name: ethos-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-ethos}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ethos_dev_password}
+      - POSTGRES_DB=${POSTGRES_DB:-ethos_core}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ethos-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+networks:
+  ethos-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  postgres-data:
