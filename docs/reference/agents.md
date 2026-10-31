@@ -2,53 +2,53 @@
 
 ETHOS Core contains 21 specialized DSP agents organized into 4 pipeline stages.
 
-## Stage 1 — Analysis
+## Stage 1: Analysis
 
-| Agent | Description | Key Methods |
-|-------|-------------|-------------|
-| **AudioAnalysisAgent** | Extracts BPM, key, genre, loudness, spectral features | `analyze_audio()` |
-| **MetadataExtractorAgent** | Reads and writes audio file metadata tags | `extract_metadata()` |
-| **StemSeparatorAgent** | Separates audio into vocals, drums, bass, other using Demucs | `separate_stems()` |
+| Agent | What it does | Key methods |
+|-------|--------------|-------------|
+| **AudioAnalysisAgent** | Works out BPM, key, sections and spectral features. Genre is a tempo/spectral rule of thumb. "LUFS" is RMS − 23 dB, not BS.1770 | `analyze_audio()` |
+| **MetadataExtractorAgent** | Musical, technical and structural metadata | `extract_metadata()` |
+| **StemSeparatorAgent** | Runs Demucs `htdemucs` (vocals, drums, bass, other), but only if Demucs is installed | `separate_stems()` |
 
-## Stage 2 — Enhancement
+## Stage 2: Enhancement
 
-| Agent | Description | Key Methods |
-|-------|-------------|-------------|
-| **QualityEnhancementAgent** | Noise reduction and signal cleanup | `enhance_quality()` |
-| **TransientShapingAgent** | Adjusts attack/sustain of transient events | `shape_transients()` |
-| **StereoEnhancementAgent** | Stereo width and imaging adjustments | `enhance_stereo()` |
-| **SpectralRepairAgent** | Repairs spectral artifacts and gaps | `repair_spectral()` |
-| **HarmonicEnhancementAgent** | Adds harmonic richness via saturation | `enhance_harmonics()` |
-| **DynamicEnhancementAgent** | Dynamic range optimization | `enhance_dynamics()` |
+| Agent | What it does | Key methods |
+|-------|--------------|-------------|
+| **QualityEnhancementAgent** | Runs the stage-2 steps in sequence. There's no noise reduction | `enhance_stem()` |
+| **TransientShapingAgent** | Splits transients from sustain using a Hilbert envelope | `shape_transients()` |
+| **StereoEnhancementAgent** | Mid/side width; turns mono into pseudo-stereo | `enhance_stereo()` |
+| **SpectralRepairAgent** | Blends the STFT magnitude with a smoothed copy | `repair_spectrum()` |
+| **HarmonicEnrichmentAgent** | `tanh` saturation and exciter | `enrich_harmonics()` |
+| **DynamicEnhancementAgent** | Sample-wise static compression/expansion | `enhance_dynamics()` |
 
-## Stage 3 — Mastering
+## Stage 3: Mix and master
 
-| Agent | Description | Key Methods |
-|-------|-------------|-------------|
-| **MixEngineerAgent** | Stem level balancing and panning | `mix_stems()` |
-| **MasteringAgent** | Full mastering chain (EQ, compression, limiting) | `master_audio()` |
-| **LoudnessOptimizerAgent** | LUFS-targeted loudness normalization | `optimize_loudness()` |
-| **FrequencyBalanceAgent** | Spectral balance correction | `balance_frequencies()` |
-| **GenreMatchingAgent** | Genre-appropriate processing profiles | `match_genre()` |
-| **ReferenceMatchingAgent** | Match tonal characteristics of a reference track | `match_reference()` |
+| Agent | What it does | Key methods |
+|-------|--------------|-------------|
+| **MixEngineerAgent** | Applies template mix parameters; every stem is panned centre | `create_mix()`, `apply_mix_to_stems()`, `render_mix()` |
+| **MasteringAgent** | 30 Hz HPF, compression, clip limiter, then RMS gain | `master_audio()` |
+| **LoudnessOptimizerAgent** | RMS-based loudness estimate and gain | `optimize_loudness()` |
+| **FrequencyBalanceAgent** | One 20 Hz high-pass | `balance_frequency()` |
+| **GenreOptimizerAgent** | Applies broadband gain per genre | `optimize_for_genre()` |
+| **ReferenceMatchingAgent** | Matches the RMS level of a reference | `match_reference()` |
 
-## Stage 4 — Export
+## Stage 4: Export
 
-| Agent | Description | Key Methods |
-|-------|-------------|-------------|
-| **DAWGeneratorAgent** | Generates REAPER `.RPP` project files with SVG curves | `generate_reaper_project()` |
-| **MarkerAgent** | Creates timeline markers from section analysis | `create_markers()` |
-| **TempoMapAgent** | Builds tempo maps from BPM analysis | `create_tempo_map()` |
-| **MetadataExporterAgent** | Embeds metadata into output files | `export_metadata()` |
-| **FormatConverterAgent** | Converts between audio formats (WAV, FLAC, MP3) | `convert_to_format()` |
-| **MIDIGeneratorAgent** | Generates MIDI representations from audio | `generate_midi()` |
+| Agent | What it does | Key methods |
+|-------|--------------|-------------|
+| **DAWGeneratorAgent** | Writes a REAPER `.RPP` project and SVG curves | `generate_reaper_project()` |
+| **MarkerCreatorAgent** | Creates timeline markers from the section analysis | `create_markers()` |
+| **TempoMapAgent** | Builds a constant-BPM tempo map | `create_tempo_map()` |
+| **MetadataExporterAgent** | Writes JSON and XML reports (nothing is embedded in the audio) | `export_to_json()`, `export_to_xml()` |
+| **FormatConverterAgent** | WAV/FLAC via soundfile; MP3/OGG via ffmpeg | `convert_to_format()` |
+| **MIDIGeneratorAgent** | Click-track MIDI; transcription is a placeholder | `create_click_track_midi()`, `generate_midi_from_audio()` |
 
 ## RL Agents
 
 | Agent | Description |
 |-------|-------------|
-| **CriticAgent** | Neural network quality evaluator (satisfaction scoring) |
-| **EQRLAgent** | Policy gradient EQ parameter learning |
-| **DynamicsRLAgent** | Policy gradient dynamics parameter learning |
+| **CriticAgent** | Small PyTorch MLP that scores feature vectors. No trained weights are included |
+| **EQRLAgent** | Actor-critic EQ parameter agent (experimental, not wired into the pipeline) |
+| **DynamicsRLAgent** | Actor-critic dynamics parameter agent (experimental, not wired into the pipeline) |
 | **HGOCoordinator** | Hierarchical Goal Optimization conflict resolution |
 | **ConceptDriftDetector** | Monitors RL policy drift and engages Safe Mode |
