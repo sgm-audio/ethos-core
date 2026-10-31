@@ -273,8 +273,8 @@ ethos-core/
 ├── deployment/
 │   └── k8s/                  # Kubernetes Deployment, Service, ConfigMap, HPA
 ├── docs/
-│   ├── deployment/           # Docker and container operational documentation
-│   └── vision/               # Theoretical foundations, mastering models, and whitepapers
+│   ├── deployment/           # Docker guide
+│   └── explanation/, how-to/, reference/, tutorials/  # MkDocs pages
 ├── src/
 │   └── ethos/
 │       ├── core/             # Ontology, message bus, data structures, configs

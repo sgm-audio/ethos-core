@@ -28,7 +28,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: ethos-core
-          image: ghcr.io/ethos-ai/ethos-core:v0.1.0
+          image: ghcr.io/sgm-audio/ethos-core:v0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
