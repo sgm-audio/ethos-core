@@ -24,10 +24,10 @@ uv run ethos process input.wav -o output/
 
 This runs all 4 stages:
 
-1. **Analysis** — Feature extraction, metadata, stem separation
-2. **Enhancement** — Noise reduction, transient shaping, spectral repair
-3. **Mastering** — Mix balance, loudness optimization, genre matching
-4. **Export** — REAPER `.RPP` project, format conversion, metadata embedding
+1. **Analysis**: feature extraction, metadata, stem separation (needs Demucs installed)
+2. **Enhancement**: transient shaping, stereo width, spectral smoothing, saturation, dynamics
+3. **Mastering**: template mix, a basic master, an RMS-based loudness estimate, genre gain
+4. **Export**: REAPER `.RPP` project, format conversion, JSON/XML metadata reports
 
 ## 3. Start the API Server
 
