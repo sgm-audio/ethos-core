@@ -10,8 +10,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 COPY pyproject.toml .python-version ./
 
 # Install dependencies into a virtual environment using uv
+ENV VIRTUAL_ENV=/app/.venv
 RUN uv venv /app/.venv && \
-    uv pip install --no-cache -r pyproject.toml
+    uv pip install --python /app/.venv/bin/python --no-cache -r pyproject.toml
 
 # Runtime stage
 FROM python:3.12-slim
