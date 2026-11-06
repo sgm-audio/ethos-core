@@ -135,15 +135,41 @@ async def process_track(
     job_id = os.urandom(4).hex()
 
     async def _run_job():
-        job = await orchestrator.process_audio(
-            input_file=request.input_file,
-            output_directory=request.output_directory,
-            enhancement_profile=request.enhancement_profile,
-            target_format=request.target_format,
-            target_daw=request.target_daw,
-            reference_track=request.reference_track,
-        )
-        jobs[job_id] = job
+        record = jobs[job_id]
+        record["status"] = "running"
+        record["stage"] = "analysis"
+        try:
+            result = await orchestrator.process_audio(
+                input_file=request.input_file,
+                output_directory=request.output_directory,
+                enhancement_profile=request.enhancement_profile,
+                target_format=request.target_format,
+                target_daw=request.target_daw,
+                reference_track=request.reference_track,
+            )
+            record.update(
+                status=result.status,
+                stage=(
+                    result.current_stage.value
+                    if hasattr(result.current_stage, "value")
+                    else str(result.current_stage)
+                ),
+                progress_percent=result.progress_percent,
+                elapsed_time=result.total_processing_time,
+                error_message=result.error_message,
+                output_directory=result.output_directory,
+                daw_project=(
+                    result.daw_project.project_file_path if result.daw_project else None
+                ),
+                completed_at=datetime.now().isoformat(),
+            )
+        except Exception as exc:
+            record.update(
+                status="failed",
+                stage="failed",
+                error_message=str(exc),
+                completed_at=datetime.now().isoformat(),
+            )
 
     jobs[job_id] = {
         "job_id": job_id,
