@@ -231,9 +231,7 @@ class SEMASOrchestrator:
                 true_peak_limit=-1.0,
             )
             mastered_path = os.path.join(output_directory, f"{job_id}_master.wav")
-            await mastering_agent.master_audio(
-                input_file, mastered_path, job.mastering_parameters
-            )
+            await mastering_agent.master_audio(input_file, mastered_path, job.mastering_parameters)
             if not os.path.isfile(mastered_path) or os.path.getsize(mastered_path) == 0:
                 raise RuntimeError("Mastering completed without producing an audio file")
             job.mastered_audio_path = mastered_path

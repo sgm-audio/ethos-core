@@ -3,9 +3,9 @@ End-to-end integration test for ETHOS Core DSP pipeline:
 Executes an audio file through all 4 stages of the SEMASOrchestrator.
 """
 
+import numpy as np
 import pytest
 import soundfile as sf
-import numpy as np
 
 from ethos.agents.dsp.orchestrator import SEMASOrchestrator
 from ethos.core.config import EnhancementProfile, TargetDAW, TargetFormat
