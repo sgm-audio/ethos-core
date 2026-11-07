@@ -175,6 +175,11 @@ class SEMASOrchestrator:
 
         # Direct pipeline execution for reliability and testability
         try:
+            if daw_str != TargetDAW.REAPER.value:
+                raise ValueError(
+                    f"DAW export {daw_str!r} is not implemented; only 'reaper' is supported"
+                )
+
             # Stage 1: Analysis
             logger.info("[%s] Stage 1: Audio Analysis", job_id)
             analysis_agent = self.agents.get("audio_analysis")
@@ -213,6 +218,25 @@ class SEMASOrchestrator:
 
             job.current_stage = ProcessingStage.MASTERING
             job.progress_percent = 75.0
+
+            # Until a separator is available, master the source mix directly instead of
+            # reporting a successful job without producing any audio artifact.
+            from ethos.core.data_structures import MasteringParameters
+
+            mastering_agent = self.agents.get("mastering")
+            if not mastering_agent:
+                raise RuntimeError("MasteringAgent is not available")
+            job.mastering_parameters = MasteringParameters(
+                target_lufs=-14.0 if format_str == TargetFormat.STREAMING.value else -16.0,
+                true_peak_limit=-1.0,
+            )
+            mastered_path = os.path.join(output_directory, f"{job_id}_master.wav")
+            await mastering_agent.master_audio(
+                input_file, mastered_path, job.mastering_parameters
+            )
+            if not os.path.isfile(mastered_path) or os.path.getsize(mastered_path) == 0:
+                raise RuntimeError("Mastering completed without producing an audio file")
+            job.mastered_audio_path = mastered_path
 
             # Stage 4: DAW Project Export
             logger.info("[%s] Stage 4: Export", job_id)

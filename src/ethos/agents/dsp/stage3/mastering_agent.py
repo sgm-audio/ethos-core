@@ -53,11 +53,10 @@ class MasteringAgent:
             audio, params.compression_ratio, params.compression_threshold
         )
 
-        # 3. Limiting
-        audio = self._apply_limiter(audio, params.true_peak_limit)
-
-        # 4. Final loudness normalization
+        # Normalize first, then apply the final ceiling. Applying gain after a limiter can
+        # undo the ceiling and create clipping in the delivered file.
         audio = self._normalize_loudness(audio, params.target_lufs)
+        audio = self._apply_limiter(audio, params.true_peak_limit)
 
         sf.write(output_path, audio, sr, subtype="PCM_24")
         logger.info(f"Mastering complete: {output_path}")

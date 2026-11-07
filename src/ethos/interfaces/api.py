@@ -158,6 +158,7 @@ async def process_track(
                 elapsed_time=result.total_processing_time,
                 error_message=result.error_message,
                 output_directory=result.output_directory,
+                mastered_audio_path=result.mastered_audio_path,
                 daw_project=(
                     result.daw_project.project_file_path if result.daw_project else None
                 ),

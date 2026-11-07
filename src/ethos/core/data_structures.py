@@ -281,6 +281,7 @@ class SEMASJob:
     stem_collection: StemCollection | None = None
     mix_parameters: MixParameters | None = None
     mastering_parameters: MasteringParameters | None = None
+    mastered_audio_path: str | None = None
     daw_project: DAWProject | None = None
 
     # Timing
