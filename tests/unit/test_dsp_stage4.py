@@ -99,8 +99,25 @@ async def test_metadata_exporter_and_format_converter(tmp_path, synthetic_stereo
 
     converter = FormatConverterAgent()
     flac_out = str(tmp_path / "converted.flac")
-    await converter.convert_to_format(synthetic_stereo_wav, "flac", flac_out)
+    result_path = await converter.convert_to_format(synthetic_stereo_wav, "flac", flac_out)
+    assert result_path == flac_out
     assert os.path.exists(flac_out)
+
+
+@pytest.mark.asyncio
+async def test_format_converter_rejects_unsupported_format(tmp_path, synthetic_stereo_wav):
+    converter = FormatConverterAgent()
+    with pytest.raises(ValueError, match="Unsupported output format"):
+        await converter.convert_to_format(synthetic_stereo_wav, "aac", str(tmp_path / "out.aac"))
+
+
+@pytest.mark.asyncio
+async def test_format_converter_reports_missing_input(tmp_path):
+    converter = FormatConverterAgent()
+    with pytest.raises(FileNotFoundError, match="Audio input does not exist"):
+        await converter.convert_to_format(
+            str(tmp_path / "missing.wav"), "wav", str(tmp_path / "out.wav")
+        )
 
 
 @pytest.mark.asyncio
