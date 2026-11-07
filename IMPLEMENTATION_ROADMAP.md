@@ -6,9 +6,9 @@ This is a source-informed engineering plan, not a promise that every research fe
 - [x] Inventory TODOs, placeholders, incomplete implementations, and unconnected stages.
 - [ ] Make API jobs transition queued → running → completed/failed, retain errors, and expose useful status/results.
 - [ ] Ensure requests are validated (uploads, paths, format/profile/DAW) and resource limits/timeouts are enforced.
-- [ ] Ensure pipeline errors are reflected in API/CLI exit status rather than silently presented as success.
+- [x] Ensure pipeline errors are reflected in API/CLI exit status rather than silently presented as success.
 - [ ] Replace guessed metrics/claims with measured values or explicitly label approximations; correct mastering ceiling/gain order.
-- [ ] Define behavior when optional Demucs or ffmpeg is missing; do not silently claim stems/exports were produced.
+- [x] Define behavior when optional Demucs or ffmpeg is missing; do not silently claim stems/exports were produced.
 
 ## P1 — Connect the advertised end-to-end pipeline
 - [ ] Route original audio through enhancement when separation is unavailable; currently the orchestrator advances through enhancement/mixing/mastering without processing audio.

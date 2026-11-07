@@ -129,6 +129,8 @@ async def run_process(args):
             print(f"  DAW Project:      {job.daw_project.project_file_path}")
     else:
         print(f"  Error: {job.error_message}")
+        return 1
+    return 0
 
 
 def run_serve(args):
@@ -138,19 +140,18 @@ def run_serve(args):
     uvicorn.run("ethos.interfaces:app", host=args.host, port=args.port, reload=args.reload)
 
 
-def main():
+def main() -> int:
     args = parse_args()
     if args.command == "analyze":
         asyncio.run(run_analysis(args.input_file))
     elif args.command == "process":
-        asyncio.run(run_process(args))
+        return asyncio.run(run_process(args))
     elif args.command == "serve":
         run_serve(args)
     else:
-        # Default help
-        argparse.ArgumentParser(prog="ethos")
         print("Use 'ethos --help' for usage instructions.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

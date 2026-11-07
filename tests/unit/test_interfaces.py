@@ -60,6 +60,18 @@ def test_api_jobs_endpoints(client: TestClient):
     assert missing_resp.status_code == 404
 
 
+def test_cli_main_returns_processing_exit_code(monkeypatch):
+    from ethos.interfaces import cli
+
+    monkeypatch.setattr("sys.argv", ["ethos", "process", "input.wav"])
+
+    async def failed_job(_args):
+        return 1
+
+    monkeypatch.setattr(cli, "run_process", failed_job)
+    assert cli.main() == 1
+
+
 def test_cli_argument_parsing(monkeypatch):
     """Verify CLI parser options for analyze, process, and serve."""
     monkeypatch.setattr("sys.argv", ["ethos", "analyze", "test.wav"])
